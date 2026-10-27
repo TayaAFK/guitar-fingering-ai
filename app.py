@@ -22,14 +22,7 @@ CHUNK_SIZE = 32 * 1024 * 1024  # 32 MiB
 
 ALLOWED_CONTENT_TYPES = {
     "video/mp4",
-    "video/x-msvideo",
     "video/quicktime",
-    "video/x-matroska",
-    "video/webm",
-    "video/x-flv",
-    "video/x-ms-wmv",
-    "video/mpeg",
-    "video/3gpp",
 }
 
 
