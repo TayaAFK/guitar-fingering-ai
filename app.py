@@ -38,7 +38,7 @@ logger = logging.getLogger(__name__)
 app = FastAPI()
 
 
-def ffmpeg_cmd(input_filename: str, out_media_type: str) -> list[str]:
+def ffmpeg_cmd(input_filename: str) -> list[str]:
     return [
         "ffmpeg",
         "-hide_banner",
@@ -49,9 +49,13 @@ def ffmpeg_cmd(input_filename: str, out_media_type: str) -> list[str]:
         "-map",
         "a",
         "-c:a",
-        "copy",
+        "pcm_s16le",
+        "-ar",
+        "22050",
+        "-ac",
+        "1",
         "-f",
-        out_media_type,
+        "wav",
         "-",
     ]
 
@@ -89,13 +93,12 @@ async def save_input_file(file: UploadFile, to: IO[bytes]) -> None:
 
 async def extract_audio(file: IO[bytes], to: IO[bytes]):
     logger.info(
-        "Staring ffmpeg process with input file %s, out media type: %s",
+        "Staring ffmpeg process with input file %s",
         file.name,
-        "ogg",
     )
     ffmpeg = await asyncio.to_thread(
         lambda: subprocess.Popen(
-            ffmpeg_cmd(file.name, "ogg"),
+            ffmpeg_cmd(file.name),
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
         )
