@@ -24,7 +24,7 @@
 3. Установите зависимости:
    pip install -r requirements.txt
 
-4. Скачайте модель MediaPipe в корневую папку или в data/:
+4. Скачайте модель MediaPipe в папку data/:
 - hand_landmarker.task
 - Положите тестовые видео в папку data/.
    
