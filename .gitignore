@@ -1,2 +1,14 @@
+# Тяжелые файлы и датасеты
+*.mp4
+*.avi
+*.mov
+*.task
+data/
+
+# Служебные директории и кэш
+__pycache__/
 venv/
 .ipynb_checkpoints/
+dist/
+build/
+*.egg-info/
