@@ -25,6 +25,7 @@ ALLOWED_CONTENT_TYPES = {
     "video/quicktime",
 }
 
+UPLOAD_BYTES_LIMIT = int(os.getenv("UPLOAD_BYTES_LIMIT", 0))
 
 logger = logging.getLogger(__name__)
 
@@ -70,10 +71,19 @@ def safe_unlink(filepath: str, attempts: int = 1):
         logger.error("Error to unlink file %s in %d attempts", filepath, attempts)
 
 
-async def save_input_file(file: UploadFile, to: IO[bytes]) -> None:
+async def save_input_file(
+    file: UploadFile,
+    to: IO[bytes],
+    limit_bytes: int = 0,
+) -> None:
     total = 0
     while chunk := await file.read(CHUNK_SIZE):
         total += len(chunk)
+        if limit_bytes > 0 and total > limit_bytes:
+            raise HTTPException(
+                413,
+                f"The file exceeds max allowed size of {limit_bytes / 2**20} MiB",
+            )
         await asyncio.to_thread(to.write, chunk)
 
     if total == 0:
@@ -147,7 +157,7 @@ async def upload_video(file: UploadFile):
             lambda: NamedTemporaryFile(mode="wb", delete=False),
         ) as tmp_input_file:
             logger.debug("Writing to temp file %s", tmp_input_file.name)
-            await save_input_file(file, tmp_input_file)
+            await save_input_file(file, tmp_input_file, UPLOAD_BYTES_LIMIT)
 
         with await asyncio.to_thread(
             lambda: NamedTemporaryFile(mode="wb", delete=False),
