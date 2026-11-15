@@ -1,0 +1,11 @@
+01_radiohead-creep			electric
+02_eminem-real-slim-shady		acoustic
+03_imagine-dragons-radioactive		acoustic
+04_nirvana-teen-spirit			electric
+05_gravity-falls-opening		electric
+06_tokyo-ghoul-unravel			electric
+07_pirates-hes-a-pirate_unknown 	acoustic
+08_aladdin-whole-new-world_unknown 	acoustic
+09_mj-billie-jean_unknown		electric
+10_mj-beat-it				electric
+11_evangelion-zankoku-tenshi		electric
