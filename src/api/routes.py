@@ -3,27 +3,16 @@ from pathlib import Path
 from fastapi import APIRouter, HTTPException, UploadFile
 from fastapi.responses import FileResponse
 
-from src.api.deps import ServiceDep
+from src.api.deps import ServiceDep, CheckedUploadFile
 from src.api.schemas import StatusResponse, UploadResponse, result_url, status_url
 from src.domain.errors import QueueFullError, EmptyUploadError, UploadTooLargeError, DurationExceedError
 from src.domain.models import TaskError, TaskStatus, ErrorCode, CLIENT_ERROR_CODES
-
-ALLOWED_CONTENT_TYPES = {"video/mp4", "video/quicktime"}
-
 
 router = APIRouter()
 
 
 @router.post("/upload", status_code=202, response_model=UploadResponse)
-async def upload_video(file: UploadFile, service: ServiceDep) -> UploadResponse:
-    if not file.content_type:
-        raise HTTPException(400, "Unable to check content type")
-    if file.content_type not in ALLOWED_CONTENT_TYPES:
-        raise HTTPException(
-            415,
-            f"Unsupported content type. Allowed: {', '.join(sorted(ALLOWED_CONTENT_TYPES))}",
-        )
-
+async def upload_video(file: CheckedUploadFile, service: ServiceDep) -> UploadResponse:
     try:
         task = await service.submit(file)
     except QueueFullError:
