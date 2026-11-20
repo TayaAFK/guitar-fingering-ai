@@ -1,15 +1,17 @@
 import asyncio
+from contextlib import suppress
 import logging
-import subprocess
 from pathlib import Path
+
+from src.domain.errors import ProcessingError
+from src.domain.models import ErrorCode
 
 logger = logging.getLogger(__name__)
 
 
 async def get_duration(file: Path) -> float:
-    ffprobe = await asyncio.to_thread(
-        lambda: subprocess.Popen(
-            [
+    ffprobe = await asyncio.create_subprocess_exec(
+        *[
                 "ffprobe",
                 "-hide_banner",
                 "-loglevel",
@@ -20,25 +22,30 @@ async def get_duration(file: Path) -> float:
                 "format=duration",
                 "-of",
                 "default=nokey=1:noprint_wrappers=1",
-            ],
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
-        ),
+        ],
+        stdin=asyncio.subprocess.DEVNULL,
+        stdout=asyncio.subprocess.PIPE,
+        stderr=asyncio.subprocess.PIPE,
     )
 
-    assert ffprobe.stdout
-    assert ffprobe.stderr
+    try:
+        ffprobe_stdout, ffprobe_stderr = await asyncio.wait_for(ffprobe.communicate(), None)
+    except asyncio.TimeoutError:
+        raise ProcessingError(ErrorCode.TIMEOUT, "FFprobe inspection took too long and was aborted")
+    finally:
+        if ffprobe.returncode is None:
+            with suppress(ProcessLookupError):
+                ffprobe.kill()
+            await ffprobe.wait()
 
-    duration = float((await asyncio.to_thread(ffprobe.stdout.read)).decode())
-    error = await asyncio.to_thread(ffprobe.stderr.read)
+    if ffprobe.returncode == 0:
+        try:
+            duration = float(ffprobe_stdout.strip().decode())
+        except Exception:
+            logger.exception("Duration converting to float ends with error")
+            raise ProcessingError(ErrorCode.INTERNAL_ERROR, "Invalid duration data")
+        return duration
 
-    await asyncio.to_thread(ffprobe.wait)
-
-    if ffprobe.returncode != 0:
-        msg = (
-            f"Internal ffprobe error: {error.decode('utf-8', errors='ignore').strip()}"
-        )
-        logger.error(msg)
-        raise RuntimeError(msg)
-
-    return duration
+    error = ffprobe_stderr.decode("utf-8", errors="ignore").strip()
+    logger.error("ffprobe exited with code %d: %s", ffprobe.returncode, error)
+    raise ProcessingError(ErrorCode.INTERNAL_ERROR, "Unable to inspect video duration")
