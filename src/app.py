@@ -23,7 +23,7 @@ async def lifespan(app: FastAPI):
         msg = "ffmpeg not found in PATH"
         raise RuntimeError(msg)
 
-    settings = Settings.from_env()
+    settings = Settings()
     owns_work_dir = settings.work_dir is None
     work_dir = settings.work_dir or Path(tempfile.mkdtemp(prefix="video2midi-"))
     work_dir.mkdir(parents=True, exist_ok=True)

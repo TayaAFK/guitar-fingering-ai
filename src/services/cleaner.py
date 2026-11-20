@@ -14,12 +14,12 @@ class ExpiredTaskCleaner:
         self,
         repository: TaskRepository,
         files: TaskFiles,
-        ttl: timedelta,
+        ttl: float,
         interval: float,
     ) -> None:
         self._repo = repository
         self._files = files
-        self._ttl = ttl
+        self._ttl = timedelta(seconds=ttl)
         self._interval = interval
 
     async def run(self) -> None:
