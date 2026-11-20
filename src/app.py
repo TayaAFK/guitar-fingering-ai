@@ -5,6 +5,7 @@ from contextlib import asynccontextmanager
 from pathlib import Path
 
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 
 from src.settings import Settings
 from src.media.transcriber import BasicPitchTranscriber
@@ -64,5 +65,17 @@ async def lifespan(app: FastAPI):
 
 def create_app() -> FastAPI:
     app = FastAPI(lifespan=lifespan)
+
+    # В будущем переместить CORS на веб-сервер
+    # либо получать список разрешенных источников из базы
+    origin_regexp = r"http://localhost:\d+"
+
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origin_regex=origin_regexp,
+        allow_methods=["*"],
+        allow_headers=["*"],
+        expose_headers=["Retry-After", "Content-Disposition"],
+    )
     app.include_router(router)
     return app
