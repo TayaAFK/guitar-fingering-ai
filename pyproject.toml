@@ -5,6 +5,7 @@ requires-python = "==3.11.*"
 dependencies = [
     "basic-pitch[onnx]>=0.4.0",
     "fastapi>=0.156.4",
+    "pretty-midi>=0.2.11.post0",
     "pydantic-settings>=2.16.3",
     "python-multipart>=0.0.32",
     "setuptools<82",
