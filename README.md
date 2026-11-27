@@ -24,7 +24,8 @@
 3. Установите зависимости:
    pip install -r requirements.txt
 
-4. Скачайте модель MediaPipe в корневую папку или в data/:
-- hand_landmarker.task
+4. Скачайте модель MediaPipe, neck в корневую папку или в data/:
+- В models/ https://drive.google.com/file/d/1s8cEoTl88kWrPJCUaGKeumwDJ1IhCzgQ/view?usp=sharing
+- В data/ hand_landmarker.task https://drive.google.com/file/d/1Gn0teBQqpinfWgsEH3c5G4uVVMpt5vjG/view?usp=sharing
 - Положите тестовые видео в папку data/.
    

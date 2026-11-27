@@ -4,6 +4,11 @@
 *.mov
 *.task
 data/
+datasets/
+runs/
+train/
+models/
+yolo26s.pt
 
 # Служебные директории и кэш
 __pycache__/
